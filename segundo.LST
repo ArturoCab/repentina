@@ -1,0 +1,70 @@
+A51 MACRO ASSEMBLER  SEGUNDO                                                              10/12/2013 12:35:26 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.02b
+OBJECT MODULE PLACED IN segundo.OBJ
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE segundo.a51 SET(SMALL) DEBUG EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                             ORG 0; Inicializacion del programa
+0000 020030            2                             LJMP PRINCIPAL; Brinca a la etiqueta PRINCIPAL 
+002B                   3                             ORG 002BH; Vector del temporizador 2
+002B 020045            4                             LJMP TIMER; Etiqueta de la interrupcion por el temporizador 2
+0030                   5                             ORG 0030H; Inicializacion del programa dado que del 00H - 2FH se re
+                             serva para los temporizadores.
+                       6                             
+0030 C280              7     PRINCIPAL:      CLR P0.0; Se declara en 0 P0.0
+0032 C281              8                             CLR P0.1; Se declara en 0 P0.1                  
+0034 7F14              9                             MOV R7, #20; Se le asigna 20 a R7, un numero importante para el con
+                             teo de segundos dado que 20 * 5000us = 1 segundo
+                      10                             
+0036 758911           11                             MOV TMOD, #11H; El temporizador va a contar hasta 50000, asi que po
+                             nerle 11H asigna el temporizador a 16bits, el cual puede contar hasta 65,000 aprox
+0039 75CDC4           12                             MOV 0CDH, #0C4H; Queremos que el temporizador cuente 50000, no 6500
+                             0 para desbordarse, asi que al hacer la resta de 65K - 50K nos da el punto de inicio del te
+                             mp en sus bits mas significativos
+003C 75CC50           13                             MOV 0CCH, #050H; Lo mismo que TH2 pero para los bits menos signific
+                             ativos
+003F D2CA             14                             SETB 0CAH; arranca el temporizador 2
+                      15                             
+0041 B280             16     CHINGA:         CPL P0.0; Se complementa P0.0, creando un ciclo dentro.
+0043 80FC             17                             SJMP CHINGA
+                      18                             
+                      19     
+                      20     
+0045                  21     TIMER:          ; cuenta hasta 20 porque 5000us = 1 seg.
+0045 C2CA             22                             CLR 0CAH
+0047 DF02             23                             DJNZ R7, IGNORA
+                      24                             ; aqui va lo que hace el timer cada segundo
+0049 B281             25                             CPL P0.1
+                      26                             
+004B 75CDC4           27     IGNORA:         MOV 0CDH, #0C4H
+004E 75CC50           28                             MOV 0CCH, #050H
+0051 D2CA             29                             SETB 0CAH;
+                      30                             ; cuando se desborde el 20, reseteas timer 2, si noes automatico, r
+                             eseteas el contador de 20
+                      31                             
+0053 32               32                             RETI
+                      33                             
+                      34                             END
+A51 MACRO ASSEMBLER  SEGUNDO                                                              10/12/2013 12:35:26 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+CHINGA . . . . . .  C ADDR   0041H   A   
+IGNORA . . . . . .  C ADDR   004BH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+PRINCIPAL. . . . .  C ADDR   0030H   A   
+TIMER. . . . . . .  C ADDR   0045H   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

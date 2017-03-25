@@ -1,0 +1,75 @@
+A51 MACRO ASSEMBLER  TEXT2                                                                10/12/2013 17:27:52 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.02b
+OBJECT MODULE PLACED IN TEXT2.OBJ
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE TEXT2.a51 SET(SMALL) DEBUG EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                             ORG 0; Inicializacion del programa
+0000 020030            2                             LJMP PRINCIPAL; Brinca a la etiqueta PRINCIPAL 
+002B                   3                             ORG 002BH; Vector del temporizador 2
+002B 02004F            4                             LJMP TIMER; Etiqueta de la interrupcion por el temporizador 2
+0030                   5                             ORG 0030H; Inicializacion del programa dado que del 00H - 2FH se re
+                             serva para los temporizadores.
+                       6                             
+0030 759000            7     PRINCIPAL:      MOV P1, #0;
+0033 D290              8                 SETB P1.0; Se declara en 0 P0.0
+0035 D291              9                             SETB P1.1; Se declara en 0 P0.1 
+                      10                             
+0037 7F14             11                             MOV R7, #20; Se le asigna 20 a R7, un numero importante para el con
+                             teo de segundos dado que 20 * 5000us = 1 segundo
+0039 75A8A0           12                             MOV IE, #0A0H;
+003C 758911           13                             MOV 089H, #11H; El temporizador va a contar hasta 50000, asi que po
+                             nerle 11H asigna el temporizador a 16bits, el cual puede contar hasta 65,000 aprox
+003F 75CD3C           14                             MOV 0CDH, #03CH; Queremos que el temporizador cuente 50000, no 6500
+                             0 para desbordarse, asi que al hacer la resta de 65K - 50K nos da el punto de inicio del te
+                             mp en sus bits mas significativos
+0042 75CCB0           15                             MOV 0CCH, #0B0H; Lo mismo que TH2 pero para los bits menos signific
+                             ativos
+0045 C290             16                 CLR P1.0; Se declara en 0 P0.0
+0047 C291             17                             CLR P1.1; Se declara en 0 P0.1  
+0049 D2CA             18                 SETB 0CAH; arranca el temporizador 2
+                      19                             
+004B B290             20     CHINGA:         CPL P1.0; Se complementa P0.0, creando un ciclo dentro.
+004D 80FC             21                             SJMP CHINGA
+                      22                             
+004F C2CA             23     TIMER:          CLR 0CAH
+0051 DF04             24                             DJNZ R7, IGNORA
+                      25                             ; aqui va lo que hace el timer cada segundo
+0053 B291             26                             CPL P1.1
+0055 7F14             27                             MOV R7, #20; cuenta hasta 20 porque 5000us = 1 seg.
+                      28                             
+0057 75CD3C           29     IGNORA:         MOV 0CDH, #03CH
+005A 75CCB0           30                             MOV 0CCH, #0B0H
+005D C2CF             31                             CLR 0CFH;
+005F D2CA             32                             SETB 0CAH;
+                      33                             
+                      34                             ; cuando se desborde el 20, reseteas timer 2, si noes automatico, r
+                             eseteas el contador de 20
+                      35                             
+0061 32               36     TERMINA:        RETI
+                      37                             
+                      38                             END
+A51 MACRO ASSEMBLER  TEXT2                                                                10/12/2013 17:27:52 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+CHINGA . . . . . .  C ADDR   004BH   A   
+IE . . . . . . . .  D ADDR   00A8H   A   
+IGNORA . . . . . .  C ADDR   0057H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+PRINCIPAL. . . . .  C ADDR   0030H   A   
+TERMINA. . . . . .  C ADDR   0061H   A   
+TIMER. . . . . . .  C ADDR   004FH   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)
